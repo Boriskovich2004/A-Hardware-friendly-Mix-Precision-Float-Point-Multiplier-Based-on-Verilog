@@ -19,7 +19,7 @@ The first bit is sign bit, 0 represents positive number and 1 represents negativ
 
 There are codes reserved for special numbers in the FP standard. They are listed in the chart below.
 
-<img src="FP_special.png" style="zoom:18%;" />
+<img src="pictures\FP_special.png" style="zoom:18%;" />
 
 For subnormal numbers, the integer part of mantissa is 0. The special standard enables FP32/16 to represent numbers smaller than $1\times2^{1-offset}$, which is the smallest positive number that can be represented by normal FP32/16 standard.
 
@@ -29,7 +29,7 @@ For subnormal numbers, the integer part of mantissa is 0. The special standard e
 
 The multiplication can be divided into three parts: first add the two exponents, then multiply the two mantissas, finally decide whether to adjust exponent and mantissa if overflow happens in the multiplication. The overall structure chart is as follows:
 
-<img src="D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\structure.png" style="zoom:26%;" />
+<img src="pictures\structure.png" style="zoom:26%;" />
 
 ##### 2.2.1   Exponent Sum
 
@@ -39,11 +39,11 @@ For the multiplication of two float point numbers, their exponent parts need to 
 
 The two mantissa parts with the implicit 1 at the highest bit are multiplied. Then we’ll take the higher 23 or 10 bits as result. But a 24 bit multiply module is complex and will cause long delay. So in this design an 8 bit multiplier is implemented. The 24 bit input is segmented into three parts, multiplied and accumulated to generate the final result. Calculating a 24 bit multiplication needs 9 times of 8 bit multiplication, as illustrated in the following graph.
 
-<img src="D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\seg_mul.png" style="zoom:22%;" />
+<img src="pictures\seg_mul.png" style="zoom:22%;" />
 
 To realize this function, a FSM is designed. There are five states: IDLE, CALC, ACCU, NORM, DONE. The state transition diagram is as follows.
 
-<img src="D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\FSM.png" style="zoom: 15%;" />
+<img src="pictures\FSM.png" style="zoom: 15%;" />
 
 When no data comes, the FSM stays at IDLE state. When data comes, `valid=1`, FSM turns to CALC state, a combinational circuit is implemented to generate the 8 bit multiplication result, then the counter add 1. While counter is less than the calculate times (9 times for 24bit, 4 times for 11 bit), FSM goes to ACCU state, where the result is shifted and accumulated. Then FSM goes back to CALC state to calculate the next segment. After all segments are calculated, FSM goes to NORM state to normalize the result if there are carry in the result. Finally FSM turns to DONE state. A finish signal is given and a result is given. Then FSM returns to IDLE state, waiting for the next data to come.
 
@@ -96,13 +96,13 @@ There are some special rules. If one input is Inf, then the output is also Inf. 
 
 The main function of top module is to transfer the output signals from the FP multiply module to display signals for Rabbit components. To save IO resources, the design uses 7-segment display and a select signal to display eight numbers. The total IO is 69. The ports and descriptions are listed below.
 
-<img src="D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\port_top.png" style="zoom: 35%;" />
+<img src="pictures\port_top.png" style="zoom: 35%;" />
 
 #### 3.2   float_mult
 
 The main module of float point multiplication. Incorporates add8 and mult24. The ports and descriptions are listed below.
 
-<img src="D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\port_float_mult.png" style="zoom:35%;" />
+<img src="pictures\port_float_mult.png" style="zoom:35%;" />
 
 In this module, inputs are first preprocessed to avoid unnecessary calculation. It first check whether the inputs are zero, Inf, NaN. If true, the multiply module will not be activated, the results can be generated after one clock, saving time and power.
 
@@ -123,19 +123,19 @@ After mut24 finished calculating, the results are put together as the final resu
 
 The longest exponent is 8 bit in FP32, the exponent sum employs a 8 bit adder. For FP16, the high 3 bit of exponent part is filled with zero before sent into the adder. The adder also outputs a carry bit, indicating overflow of the exponent part. The whole logic is combinational. The ports are listed below.
 
-<img src="D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\port_add8.png" style="zoom:35%;" />
+<img src="pictures\port_add8.png" style="zoom:35%;" />
 
 #### 3.4   mult_24
 
 This module inputs two 24-bit numbers, and output the 23-bit product without the implicit highest bit. The `normalize` and `more_than_1` signals are introduced in 2.3.1. The `more_than_1` is used to generate the `denorm_normalize` signal in 2.3.1. The ports are listed below.
 
-<img src="D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\port_mult24.png" style="zoom:35%;" />
+<img src="pictures\port_mult24.png" style="zoom:35%;" />
 
 #### 3.5   mult_8
 
 This is a combinational logic module, realizing the multiplication of two 8-bit numbers. The ports are listed below.
 
-<img src="D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\port_mult8.png" style="zoom:35%;" />
+<img src="pictures\port_mult8.png" style="zoom:35%;" />
 
 ### 4   Results
 
@@ -163,11 +163,11 @@ Test case 7: Random multiplication (denorm number normalize)
 
 The TCL output is as follows:
 
-![](D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\float_mult_tcl.png)
+![](pictures\float_mult_tcl.png)
 
 The waveform is as follows.
 
-![](D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\float_mult_wv.png)
+![](pictures\float_mult_wv.png)
 
 #### 4.3   top Test Results
 
@@ -182,23 +182,23 @@ Test FP32 mode:
 
 The input of first case is as follows:
 
-![](D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\top_wv1.png)
+![](pictures\top_wv1.png)
 
 The output of the first case is as follows:
 
-![](D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\top_wv2.png)
+![](pictures\top_wv2.png)
 
 The waveform of the second test case is as follows, the display function is correct.
 
-![](D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\top_wv3.png)
+![](pictures\top_wv3.png)
 
-![](D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\top_wv4.png)
+![](pictures\top_wv4.png)
 
 #### 4.4   Rabbit Testing
 
 The component layout is as follows. There are two 4*4 pads for input and three 8-number 7-segment display unit. The display effect is as follows.
 
-<img src="D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\rabbit_demo.png" style="zoom:43%;" />
+<img src="pictures\rabbit_demo.png" style="zoom:43%;" />
 
 ### 5   Problems & Outlook
 
