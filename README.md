@@ -13,13 +13,13 @@ In this lab, I designed a float point multiplier that reuses a 8-bit integer mul
 
 The module supports two precisions, FP16 and FP32. According to IEEE754, the formats of two data types are illustrated in the graph below.
 
-<img src="D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\FP16 FP32.png" style="zoom: 20%;" />
+<img src="pictures\FP16 FP32.png" style="zoom: 20%;" />
 
 The first bit is sign bit, 0 represents positive number and 1 represents negative. The next part is exponent number. For FP32, bit 23 to 30 is the exponent bit while for FP16 it’s bit 14 to 10. The number of the exponent bits needs to subtract an offset number and then calculated as the exponent of 2. The last part is the mantissa part. The mantissa is considered as the fractional part of a binary fixed point number. In most cases, the integer part of the number is 1. For example, if the mantissa part of FP16 is `10'b10000_00000`, the corresponding binary fixed point number is `1.1000000000` in binary form, which is $1.5$. 
 
 There are codes reserved for special numbers in the FP standard. They are listed in the chart below.
 
-<img src="D:\Documents\Fudan\作业\FPGA结构原理作业\22307130445-贾梓越-FDE\lab2\lab2_pictures\FP_special.png" style="zoom:18%;" />
+<img src="FP_special.png" style="zoom:18%;" />
 
 For subnormal numbers, the integer part of mantissa is 0. The special standard enables FP32/16 to represent numbers smaller than $1\times2^{1-offset}$, which is the smallest positive number that can be represented by normal FP32/16 standard.
 
